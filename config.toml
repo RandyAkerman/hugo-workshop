@@ -10,3 +10,5 @@ showVisitedLinks = true
 disableBreadcrumb = false
 disableNextPrev = false
 themeVariant = "red"
+github_username = "john"
+github_repository = "hugo-custom-workshop"
