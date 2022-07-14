@@ -10,12 +10,12 @@ on:
     # Edit to the branch(es) you want to build and deploy on each push.
     branches: [ "main" ]
 
-env:
-  IMAGE_REGISTRY: quay.io/user/rakerman
-  REGISTRY_USER: ${{ secerts.REGISTRY_USER }}
-  REGISTRY_PASSWORD: ${{ secerts.REGISTRY_PASSWORD }}
-  APP_NAME: hugo-workshop
-  IMAGE_TAGS: latest
+#env:
+#  IMAGE_REGISTRY: quay.io/user/rakerman
+#  REGISTRY_USER: ${{ secerts.REGISTRY_USER }}
+#  REGISTRY_PASSWORD: ${{ secerts.REGISTRY_PASSWORD }}
+#  APP_NAME: hugo-workshop
+#  IMAGE_TAGS: latest
 
 jobs:
   build-and-push:
@@ -31,8 +31,8 @@ jobs:
         id: build_image
         uses: redhat-actions/s2i-build@v2
         with:
-          image: ${{ env.APP_NAME }}
-          tags: ${{ env.IMAGE_TAGS }}
+          image: ${{ secrets.APP_NAME }}
+          tags: ${{ secrets.IMAGE_TAGS }}
           builder_image: 'centos7/nginx-114-centos7'
 
       # Push image to the Quay container registry
@@ -41,6 +41,6 @@ jobs:
         with:
           image: ${{ steps.build_image.outputs.image }}
           tags: ${{ steps.build_image.outputs.tags }}
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          registry: ${{ secrets.IMAGE_REGISTRY }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
