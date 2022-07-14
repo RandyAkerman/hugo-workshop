@@ -12,8 +12,8 @@ on:
 
 env:
   IMAGE_REGISTRY: quay.io/user/rakerman
-  REGISTRY_USER: ${{ env.REGISTRY_USER }}
-  REGISTRY_PASSWORD: ${{ env.REGISTRY_PASSWORD }}
+  REGISTRY_USER: ${{ secerts.REGISTRY_USER }}
+  REGISTRY_PASSWORD: ${{ secerts.REGISTRY_PASSWORD }}
   APP_NAME: hugo-workshop
   IMAGE_TAGS: latest
 
