@@ -13,7 +13,7 @@ on:
 env:
   IMAGE_REGISTRY: quay.io/user/rakerman
   REGISTRY_USER: ${{ env.REGISTRY_USER }}
-  REGISTRY_PASSWORD: ${{ REGISTRY_PASSWORD }}
+  REGISTRY_PASSWORD: ${{ env.REGISTRY_PASSWORD }}
   APP_NAME: hugo-workshop
   IMAGE_TAGS: latest
 
