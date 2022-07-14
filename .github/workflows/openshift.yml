@@ -2,7 +2,23 @@
 # of the application using source to image build
 # startegy and push the image to ghcr.io (Image registry)
 
+# https://redhat-scholars.github.io/openshift-starter-guides/rhs-openshift-starter-guides/4.7/nationalparks-java-codechanges-github-actions.html
+
 name: S2I build and push
+
+env: 
+  IMAGE_REGISTRY: quay.io/${{ secrets.QUAY_USERNAME }}
+  REGISTRY_USER: ${{ secrets.QUAY_USERNAME }}
+  REGISTRY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+  APP_NAME: nationalparks
+  IMAGE_TAGS: latest ${{ github.sha }}
+
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  OPENSHIFT_NAMESPACE: "%PROJECT%"
+
+  APP_PORT: "8080"
+
 on:
   # https://docs.github.com/en/actions/reference/events-that-trigger-workflows
   workflow_dispatch:
@@ -10,31 +26,53 @@ on:
     # Edit to the branch(es) you want to build and deploy on each push.
     branches: [ "main" ]
 
-steps:
-  env:
-    IMAGE_NAME: hugo-workshop
-    TAGS: v1 ${{ github.sha }}
-  
-  - name: Checkout
-    uses: actions/checkout@v2
+jobs:
+  build-and-push: 
+    name: Build s2i and push tp quay
+    runs-on: ubuntu-latest
+    environment: development
 
-  # Setup S2i and Build container image
-  - name: Setup and Build
-    id: build_image
-    uses: redhat-actions/s2i-build@v2
-    with:
-      path_context: '.'
-      # Builder image for a java project
-      builder_image: 'quay.io/centos7/nginx-114-centos7'
-      image: ${{ env.IMAGE_NAME }}
-      tags: ${{ env.TAGS }}
+    outputs:
+        ROUTE: ${{ steps.deploy-and-expose.outputs.route }}
+        SELECTOR: ${{ steps.deploy-and-expose.outputs.selector }}
 
-  # Push Image to Quay registry
-  - name: Push To Quay Action
-    uses: redhat-actions/push-to-registry@v2
-    with:
-      image: ${{ steps.build_image.outputs.image }}
-      tags: ${{ steps.build_image.outputs.tags }}
-      registry: quay.io/${{ secrets.QUAY_USERNAME }}
-      username: ${{ secrets.QUAY_USERNAME }}
-      password: ${{ secrets.QUAY_PASSWORD }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Setup S2i and Build container image
+      - name: Setup and Build
+        id: build_image
+        uses: redhat-actions/s2i-build@v2
+        with:
+          path_context: '.'
+          # Builder image for a java project
+          builder_image: 'quay.io/centos7/nginx-114-centos7'
+          image: ${{ env.IMAGE_NAME }}
+          tags: ${{ env.TAGS }}
+
+      # Push Image to Quay registry
+      - name: Push To Quay Action
+        id: push-to-registry
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ env.REGISTRY_PASSWORD }
+
+    # The path the image was pushed to is now stored in ${{ steps.push-to-registry.outputs.registry-path }}
+
+    # https://github.com/redhat-actions/oc-login#readme
+      - name: Log in to OpenShift 
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+          openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+
+      # Run a script to create a new app or update the current one with the previously pushed container image
+      - run: | 
+            "${GITHUB_WORKSPACE}/.github/script.sh" ${{ env.APP_NAME }} ${{ env.IMAGE_REGISTRY }}/${{ steps.build_image.outputs.image }}:${{ github.sha }} ${{ env.OPENSHIFT_NAMESPACE }}
