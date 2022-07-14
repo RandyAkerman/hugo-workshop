@@ -10,37 +10,31 @@ on:
     # Edit to the branch(es) you want to build and deploy on each push.
     branches: [ "main" ]
 
-#env:
-#  IMAGE_REGISTRY: quay.io/user/rakerman
-#  REGISTRY_USER: ${{ secerts.REGISTRY_USER }}
-#  REGISTRY_PASSWORD: ${{ secerts.REGISTRY_PASSWORD }}
-#  APP_NAME: hugo-workshop
-#  IMAGE_TAGS: latest
+steps:
+  env:
+    IMAGE_NAME: hugo-workshop
+    TAGS: v1 ${{ github.sha }}
+  
+  - name: Checkout
+    uses: actions/checkout@v2
 
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    name: Build and push to ghcr.io
-    steps:
-      # Checkout spring hugo-workshop repository
-      - name: Checkout
-        uses: actions/checkout@v2
+  # Setup S2i and Build container image
+  - name: Setup and Build
+    id: build_image
+    uses: redhat-actions/s2i-build@v2
+    with:
+      path_context: '.'
+      # Builder image for a java project
+      builder_image: 'quay.io/centos7/nginx-114-centos7'
+      image: ${{ env.IMAGE_NAME }}
+      tags: ${{ env.TAGS }}
 
-      # Setup S2I and build container image
-      - name: Setup and Build
-        id: build_image
-        uses: redhat-actions/s2i-build@v2
-        with:
-          image: ${{ secrets.APP_NAME }}
-          tags: ${{ secrets.IMAGE_TAGS }}
-          builder_image: 'centos7/nginx-114-centos7'
-
-      # Push image to the Quay container registry
-      - name: Push To Quay container registry
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build_image.outputs.image }}
-          tags: ${{ steps.build_image.outputs.tags }}
-          registry: ${{ secrets.IMAGE_REGISTRY }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+  # Push Image to Quay registry
+  - name: Push To Quay Action
+    uses: redhat-actions/push-to-registry@v2
+    with:
+      image: ${{ steps.build_image.outputs.image }}
+      tags: ${{ steps.build_image.outputs.tags }}
+      registry: quay.io/${{ secrets.QUAY_USERNAME }}
+      username: ${{ secrets.QUAY_USERNAME }}
+      password: ${{ secrets.QUAY_PASSWORD }
