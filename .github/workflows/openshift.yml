@@ -54,7 +54,7 @@ jobs:
           # Builder image for a java project
           builder_image: 'quay.io/centos7/nginx-114-centos7'
           image: ${{ env.APP_NAME }}
-          tags: ${{ env.TAGS }}
+          tags: ${{ env.IMAGE_TAGS }}
 
       # Push Image to Quay registry
       # - name: Push To Quay Action
