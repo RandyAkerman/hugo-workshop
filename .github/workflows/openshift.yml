@@ -16,7 +16,7 @@ env:
   # IMAGE_TAGS: latest ${{ github.sha }}
   # REGISTRY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
   APP_NAME: hugo-workshop
-  IMAGE_TAGS: latest ${{ github.sha }}
+  IMAGE_TAGS: latest
 
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
@@ -51,8 +51,8 @@ jobs:
         uses: redhat-actions/s2i-build@v2.2
         with:
           path_context: '.'
-          # Builder image for a java project
-          builder_image: 'quay.io/sclorg/nginx-120-c8s'
+          # Builder image for a nginx
+          builder_image: 'registry.access.redhat.com/rhscl/nginx-120-rhel7'
           image: ${{ env.APP_NAME }}
           tags: ${{ env.IMAGE_TAGS }}
 
