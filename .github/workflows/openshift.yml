@@ -33,7 +33,7 @@ on:
 
 jobs:
   build-and-push: 
-    name: Build s2i and push tp quay
+    name: Build s2i
     runs-on: ubuntu-latest
     environment: development
 
@@ -70,7 +70,7 @@ jobs:
 
       - name: Push to Registry 
         id: push-to-registry
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v2.6
         with:
           image: ${{ steps.build_image.outputs.image }}
           tags: ${{ steps.build_image.outputs.tags }}
