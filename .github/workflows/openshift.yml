@@ -12,7 +12,6 @@ env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ github.token }}
-  # APP_NAME: nationalparks
   # IMAGE_TAGS: latest ${{ github.sha }}
   # REGISTRY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
   APP_NAME: hugo-workshop
@@ -52,7 +51,7 @@ jobs:
         with:
           path_context: '.'
           # Builder image for a nginx
-          builder_image: 'centos/nginx-114-centos7'
+          builder_image: 'quay.io/sclorg/nginx-120-c9'
           image: ${{ env.APP_NAME }}
           tags: ${{ env.IMAGE_TAGS }}
 
