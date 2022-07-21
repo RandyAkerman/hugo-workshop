@@ -92,3 +92,10 @@ jobs:
       # # Run a script to create a new app or update the current one with the previously pushed container image
       # - run: | 
       #       "${GITHUB_WORKSPACE}/.github/deploy.sh" ${{ env.APP_NAME }} ${{ env.IMAGE_REGISTRY }}/${{ steps.build_image.outputs.image }}:${{ github.sha }} ${{ env.OPENSHIFT_NAMESPACE }}
+# TODO: Use oc-new-app to auto-deploy to openshift
+      - name: Create and expose app
+        uses: redhat-actions/oc-new-app@v1
+        with:
+          app_name: ${{ env.APP_NAME }}
+          image: ${{ env.IMAGE_REGISTRY }}/${{ steps.build_image.outputs.image }}
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
