@@ -10,10 +10,6 @@ env:
   IMAGE_REGISTRY: quay.io/${{ secrets.QUAY_USERNAME }}
   REGISTRY_USER: ${{ secrets.QUAY_USERNAME }}
   REGISTRY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
-  # IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-  # REGISTRY_USER: ${{ github.actor }}
-  # REGISTRY_PASSWORD: ${{ github.token }}
-  # IMAGE_TAGS: latest ${{ github.sha }}
   APP_NAME: hugo-workshop
   IMAGE_TAGS: latest
 
@@ -51,13 +47,7 @@ jobs:
         with:
           path_context: '.'
           # Builder image for a nginx
-          # builder_image: 'centos/nginx-110-centos7' #NOTE: This needs to be moved to quay and updated
           builder_image: 'registry.access.redhat.com/ubi8/nginx-120'
-          # For Quay
-          # registry: ${{ env.IMAGE_REGISTRY }}
-          # username: ${{ env.REGISTRY_USER }}
-          # password: ${{ env.REGISTRY_PASSWORD }}
-          #####
           image: ${{ env.APP_NAME }}
           tags: ${{ env.IMAGE_TAGS }}
 
@@ -71,10 +61,6 @@ jobs:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASSWORD }}
-          # https://github.com/redhat-actions/push-to-registry#readme
-
-      # - name: Print image url
-      #   run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"    # The path the image was pushed to is now stored in ${{ steps.push-to-registry.outputs.registry-path }}
 
     # https://github.com/redhat-actions/oc-login#readme
       - name: Log in to OpenShift 
@@ -85,10 +71,6 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
 
-      # # Run a script to create a new app or update the current one with the previously pushed container image
-      # - run: | 
-      #       "${GITHUB_WORKSPACE}/.github/deploy.sh" ${{ env.APP_NAME }} ${{ env.IMAGE_REGISTRY }}/${{ steps.build_image.outputs.image }}:${{ github.sha }} ${{ env.OPENSHIFT_NAMESPACE }}
-# TODO: Use oc-new-app to auto-deploy to openshift
       - name: Create and expose app
         uses: redhat-actions/oc-new-app@v1
         with:
