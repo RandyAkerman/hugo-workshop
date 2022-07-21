@@ -9,11 +9,11 @@ name: S2I build and push
 env: 
   IMAGE_REGISTRY: quay.io/${{ secrets.QUAY_USERNAME }}
   REGISTRY_USER: ${{ secrets.QUAY_USERNAME }}
+  REGISTRY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
   # IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   # REGISTRY_USER: ${{ github.actor }}
-  REGISTRY_PASSWORD: ${{ github.token }}
+  # REGISTRY_PASSWORD: ${{ github.token }}
   # IMAGE_TAGS: latest ${{ github.sha }}
-  REGISTRY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
   APP_NAME: hugo-workshop
   IMAGE_TAGS: latest
 
